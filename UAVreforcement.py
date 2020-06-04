@@ -119,7 +119,7 @@ class searchproject:
 
     def rescaleimg(self,orgimg,scalefactor,respect=[1,1], chopsize=[0,0,0,0]):
         #To check whether we need to chop this image or rescale image
-        orgimg = orgimg[:,:,0]
+        orgimg = orgimg[:,:,1]
         if respect == [1,1] and chopsize == [0,0,0,0]:
             #Used for simply rescale
             #Defined to rescale the original map to smaller one
@@ -167,22 +167,22 @@ class searchproject:
             #should import steps here
             return [max(i - stepth, 0), j]
         elif action == self.ACTION_DOWN:
-            return [min(i + stepth, 34), j]
+            return [min(i + stepth, int(self.roadmap.shape[1])-1), j]
         elif action == self.ACTION_LEFT:
             return [i, max(j - stepth, 0)]
         elif action == self.ACTION_RIGHT:
-            return [i, min(j + stepth,34)]
+            return [i, min(j + stepth,int(self.roadmap.shape[0])-1)]
         else:
             assert False
 
-    def searchiterate(self,num_episodes,initpoint1=[20,25],initpoint2=[24,25]):
+    def searchiterate(self,num_episodes,initpoint1=[20,25],initpoint2=[25,25]):
         #We use this function to search the possible way
         for i_episode in range(num_episodes):
             #TODO: should solve this initial points 
             site1 = initpoint1
             site2 = initpoint2
             #Define the state now
-            state = self.diff(site2,site1)
+            state = self.diff(site1,site2)
             #Transform to tensor
             state = torch.Tensor([state])
             #state = torch.transpose(state,0,1)
@@ -197,7 +197,7 @@ class searchproject:
             while True:
                 i += 1
                 #For Debug usage
-                print("In iteration {} and the shape of state is {} {}".format(i,np.shape(state)[0],np.shape(state)[1]))
+#                print("In iteration {} and the shape of state is {} {}".format(i,np.shape(state)[0],np.shape(state)[1]))
                 #End of debug here
                 action, log_prob, entropy = self.agent.select_action(state)
                 #Make motion along a direction
